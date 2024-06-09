@@ -7,6 +7,7 @@ public class Main {
         jFrame.setBounds(10, 10, game.getWindowWidth(), game.getWindowHeight());
         jFrame.setTitle("Pong");
         jFrame.setVisible(true);
+        jFrame.setResizable(false);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.add(game);
     }

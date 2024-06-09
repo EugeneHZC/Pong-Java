@@ -3,7 +3,8 @@ public class Player  {
     private int playerYPos;
     private final int width = 10;
     private final int height = 100;
-    private final int velocity = 5;
+    private final int velocity = 10;
+    private int score = 0;
 
     public Player(int playerXPos, int playerYPos) {
         this.playerXPos = playerXPos;
@@ -16,6 +17,14 @@ public class Player  {
 
     public void moveDown() {
         this.playerYPos += this.velocity;
+    }
+
+    public void addScore() {
+        this.score += 5;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public int getPlayerXPos() {

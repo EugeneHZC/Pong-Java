@@ -15,13 +15,24 @@ public class Game extends JPanel implements KeyListener, ActionListener {
 
     private final Player player1;
     private final Player player2;
+    private final Ball ball;
+
+    private Rectangle player1Rect;
+    private Rectangle player2Rect;
+    private Rectangle ballRect;
 
     public Game() {
         addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+
         player1 = new Player(30, windowHeight / 3);
         player2 = new Player(this.windowWidth - 50, windowHeight / 3);
+        ball = new Ball(this.windowWidth / 2 - 10, this.windowHeight / 2 - 100);
+//        player1Rect = new Rectangle(player1.getPlayerXPos(), player1.getPlayerYPos(), player1.getWidth(), player1.getHeight());
+//        player2Rect = new Rectangle(player2.getPlayerXPos(), player2.getPlayerYPos(), player2.getWidth(), player2.getHeight());
+//        ballRect = new Rectangle(ball.getBallXPos(), ball.getBallYPos(), ball.getBallWidth(), ball.getBallHeight());
+
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -48,6 +59,15 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         graphics.fillRect(player1.getPlayerXPos(), player1.getPlayerYPos(), player1.getWidth(), player1.getHeight());
         graphics.fillRect(player2.getPlayerXPos(), player2.getPlayerYPos(), player2.getWidth(), player2.getHeight());
 
+        // ball
+        graphics.setColor(Color.yellow);
+        graphics.fillOval(ball.getBallXPos(), ball.getBallYPos(), ball.getBallWidth(), ball.getBallHeight());
+
+        // scores
+        graphics.setColor(Color.white);
+        graphics.setFont(new Font("arial", Font.BOLD, 30));
+        graphics.drawString("Score: " + player1.getScore(), 20, 40);
+        graphics.drawString("Score: " + player2.getScore(), this.windowWidth - 150, 40);
 
         graphics.dispose();
     }
@@ -55,6 +75,26 @@ public class Game extends JPanel implements KeyListener, ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         timer.start();
+
+        if (gameActive) {
+            ball.moveBall();
+
+            player1Rect = new Rectangle(player1.getPlayerXPos(), player1.getPlayerYPos(), player1.getWidth(), player1.getHeight());
+            player2Rect = new Rectangle(player2.getPlayerXPos(), player2.getPlayerYPos(), player2.getWidth(), player2.getHeight());
+            ballRect = new Rectangle(ball.getBallXPos(), ball.getBallYPos(), ball.getBallWidth(), ball.getBallHeight());
+
+            if (ball.getBallYPos() <= 0 || ball.getBallYPos() + ball.getBallHeight() >= this.windowHeight - 30) {
+                ball.setBallYDir(-ball.getBallYDir());
+            }
+
+            if ((ball.getBallXPos() <= player1.getPlayerXPos() + player1.getWidth() && ballRect.intersects(player1Rect)) ||
+               (ball.getBallXPos() + ball.getBallWidth() >= player2.getPlayerXPos() && ballRect.intersects(player2Rect))
+            ) {
+                ball.setBallXDir(-ball.getBallXDir());
+            }
+
+        }
+
         repaint();
     }
 
