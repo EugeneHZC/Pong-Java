@@ -10,6 +10,7 @@ public class Game extends JPanel implements KeyListener, ActionListener {
     private final int windowHeight = 600;
 
     private boolean gameActive = false;
+    private boolean newGame = true;
     private Timer timer;
     private final int delay = 8;
 
@@ -29,9 +30,6 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         player1 = new Player(30, windowHeight / 3);
         player2 = new Player(this.windowWidth - 50, windowHeight / 3);
         ball = new Ball(this.windowWidth / 2 - 10, this.windowHeight / 2 - 100);
-//        player1Rect = new Rectangle(player1.getPlayerXPos(), player1.getPlayerYPos(), player1.getWidth(), player1.getHeight());
-//        player2Rect = new Rectangle(player2.getPlayerXPos(), player2.getPlayerYPos(), player2.getWidth(), player2.getHeight());
-//        ballRect = new Rectangle(ball.getBallXPos(), ball.getBallYPos(), ball.getBallWidth(), ball.getBallHeight());
 
         timer = new Timer(delay, this);
         timer.start();
@@ -43,13 +41,30 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         graphics.fillRect(0, 0, windowWidth, windowHeight);
 
         if (!gameActive) {
-            // text when game is not active
-            graphics.setColor(Color.white);
-            graphics.setFont(new Font("arial", Font.BOLD, 30));
-            graphics.drawString("Press space to start.", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
-            return;
-        }
+            if (newGame) {
+                // text when game is not active
+                graphics.setColor(Color.white);
+                graphics.setFont(new Font("arial", Font.BOLD, 30));
+                graphics.drawString("Press space to start.", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+                return;
+            } else {
+                // Score points text
+                graphics.setColor(Color.green);
+                graphics.setFont(new Font("arial", Font.BOLD, 30));
 
+                if (ball.getBallXPos() + ball.getBallWidth() <= -5) {
+                    player2.addScore();
+                    graphics.drawString("Player 2 scores a point", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+                }
+
+                if (ball.getBallXPos() >= this.windowWidth) {
+                    player1.addScore();
+                    graphics.drawString("Player 1 scores a point", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+                }
+
+                graphics.drawString("Press space to continue", this.windowWidth / 2 - 150, this.windowHeight / 2);
+            }
+        }
         // middle border
         graphics.setColor(Color.white);
         graphics.fillRect(this.windowWidth / 2 - 10, 0, 10, this.windowHeight);
@@ -68,6 +83,20 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         graphics.setFont(new Font("arial", Font.BOLD, 30));
         graphics.drawString("Score: " + player1.getScore(), 20, 40);
         graphics.drawString("Score: " + player2.getScore(), this.windowWidth - 150, 40);
+
+        if (player1.getScore() == 5) {
+            graphics.setColor(Color.green);
+            graphics.setFont(new Font("arial", Font.BOLD, 30));
+            graphics.drawString("Player 1 wins!", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+            return;
+        }
+
+        if (player2.getScore() == 5) {
+            graphics.setColor(Color.green);
+            graphics.setFont(new Font("arial", Font.BOLD, 30));
+            graphics.drawString("Player 2 wins!", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+            return;
+        }
 
         graphics.dispose();
     }
@@ -88,8 +117,12 @@ public class Game extends JPanel implements KeyListener, ActionListener {
             }
 
             if ((ball.getBallXPos() <= player1.getPlayerXPos() + player1.getWidth() && ballRect.intersects(player1Rect)) ||
-               (ball.getBallXPos() + ball.getBallWidth() >= player2.getPlayerXPos() && ballRect.intersects(player2Rect))
-            ) {
+                    (ball.getBallXPos() + ball.getBallWidth() >= player2.getPlayerXPos() && ballRect.intersects(player2Rect))) {
+                ball.setBallXDir(-ball.getBallXDir());
+            }
+
+            if (ball.getBallXPos() + ball.getBallWidth() <= -5 || ball.getBallXPos() >= this.windowWidth) {
+                gameActive = false;
                 ball.setBallXDir(-ball.getBallXDir());
             }
 
@@ -98,14 +131,25 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         repaint();
     }
 
+    private void reset() {
+        ball.setBallXPos(this.windowWidth / 2 - 10);
+        ball.setBallYPos(this.windowHeight / 2 - 100);
+        player1.setPlayerYPos(this.windowHeight / 3);
+        player2.setPlayerYPos(this.windowHeight / 3);
+        player1.resetScore();
+        player2.resetScore();
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE && !gameActive) {
             this.gameActive = true;
+            this.newGame = false;
+            this.reset();
         }
 
         if (e.getKeyCode() == KeyEvent.VK_W && player1.getPlayerYPos() >= 0 && gameActive) {

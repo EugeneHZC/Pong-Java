@@ -14,6 +14,14 @@ public class Ball {
         this.ballYPos = ballYPos;
     }
 
+    public void setBallXPos(int ballXPos) {
+        this.ballXPos = ballXPos;
+    }
+
+    public void setBallYPos(int ballYPos) {
+        this.ballYPos = ballYPos;
+    }
+
     public int getBallXPos() {
         return ballXPos;
     }

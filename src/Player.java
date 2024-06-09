@@ -11,6 +11,14 @@ public class Player  {
         this.playerYPos = playerYPos;
     }
 
+    public void resetScore() {
+        this.score = 0;
+    }
+
+    public void setPlayerYPos(int playerYPos) {
+        this.playerYPos = playerYPos;
+    }
+
     public void moveUp() {
         this.playerYPos -= this.velocity;
     }
