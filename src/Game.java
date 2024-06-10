@@ -8,9 +8,11 @@ import java.awt.event.KeyListener;
 public class Game extends JPanel implements KeyListener, ActionListener {
     private final int windowWidth = 1000;
     private final int windowHeight = 600;
+    private final int winningScore = 5;
 
     private boolean gameActive = false;
     private boolean newGame = true;
+    private boolean gameOver = false;
     private Timer timer;
     private final int delay = 8;
 
@@ -52,13 +54,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
                 graphics.setColor(Color.green);
                 graphics.setFont(new Font("arial", Font.BOLD, 30));
 
-                if (ball.getBallXPos() + ball.getBallWidth() <= -5) {
-                    player2.addScore();
+                if (ball.getBallXPos() + ball.getBallWidth() <= -5 && player2.getScore() < winningScore) {
                     graphics.drawString("Player 2 scores a point", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
                 }
 
-                if (ball.getBallXPos() >= this.windowWidth) {
-                    player1.addScore();
+                if (ball.getBallXPos() >= this.windowWidth && player1.getScore() < winningScore) {
                     graphics.drawString("Player 1 scores a point", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
                 }
 
@@ -84,17 +84,21 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         graphics.drawString("Score: " + player1.getScore(), 20, 40);
         graphics.drawString("Score: " + player2.getScore(), this.windowWidth - 150, 40);
 
-        if (player1.getScore() == 5) {
+        if (player1.getScore() >= winningScore) {
             graphics.setColor(Color.green);
             graphics.setFont(new Font("arial", Font.BOLD, 30));
-            graphics.drawString("Player 1 wins!", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+            graphics.drawString("Player 1 wins!", this.windowWidth / 2 - 110, this.windowHeight / 2 - 50);
+
+            gameOver = true;
             return;
         }
 
-        if (player2.getScore() == 5) {
+        if (player2.getScore() >= winningScore) {
             graphics.setColor(Color.green);
             graphics.setFont(new Font("arial", Font.BOLD, 30));
-            graphics.drawString("Player 2 wins!", this.windowWidth / 2 - 150, this.windowHeight / 2 - 50);
+            graphics.drawString("Player 2 wins!", this.windowWidth / 2 - 110, this.windowHeight / 2 - 50);
+
+            gameOver = true;
             return;
         }
 
@@ -112,16 +116,26 @@ public class Game extends JPanel implements KeyListener, ActionListener {
             player2Rect = new Rectangle(player2.getPlayerXPos(), player2.getPlayerYPos(), player2.getWidth(), player2.getHeight());
             ballRect = new Rectangle(ball.getBallXPos(), ball.getBallYPos(), ball.getBallWidth(), ball.getBallHeight());
 
+            // Top and bottom border collision
             if (ball.getBallYPos() <= 0 || ball.getBallYPos() + ball.getBallHeight() >= this.windowHeight - 30) {
                 ball.setBallYDir(-ball.getBallYDir());
             }
 
+            // Ball and player paddle collisions
             if ((ball.getBallXPos() <= player1.getPlayerXPos() + player1.getWidth() && ballRect.intersects(player1Rect)) ||
                     (ball.getBallXPos() + ball.getBallWidth() >= player2.getPlayerXPos() && ballRect.intersects(player2Rect))) {
                 ball.setBallXDir(-ball.getBallXDir());
             }
 
-            if (ball.getBallXPos() + ball.getBallWidth() <= -5 || ball.getBallXPos() >= this.windowWidth) {
+            // When the ball exceeded any one of the player's borders
+            if (ball.getBallXPos() + ball.getBallWidth() <= -5) {
+                player2.addScore();
+                gameActive = false;
+                ball.setBallXDir(-ball.getBallXDir());
+            }
+
+            if (ball.getBallXPos() >= this.windowWidth) {
+                player1.addScore();
                 gameActive = false;
                 ball.setBallXDir(-ball.getBallXDir());
             }
@@ -136,8 +150,11 @@ public class Game extends JPanel implements KeyListener, ActionListener {
         ball.setBallYPos(this.windowHeight / 2 - 100);
         player1.setPlayerYPos(this.windowHeight / 3);
         player2.setPlayerYPos(this.windowHeight / 3);
-        player1.resetScore();
-        player2.resetScore();
+
+        if (gameOver) {
+            player1.resetScore();
+            player2.resetScore();
+        }
     }
 
     @Override
